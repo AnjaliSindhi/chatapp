@@ -21,13 +21,25 @@ class DataList extends StatefulWidget {
 }
 
 class _DataListState extends State<DataList> { 
-User user =  FirebaseAuth.instance.currentUser!;
+ //User user =  FirebaseAuth.instance.currentUser!;
+ String? mailid =  FirebaseAuth.instance.currentUser!.email;
+ User? _user;
 final DatabaseReference _reference = FirebaseDatabase.instance.ref().child('msgs');  
 
   ScrollController _scrollController = ScrollController();
   TextEditingController _msgController = TextEditingController();
 
+@override
+  void initState() {
+    super.initState();
+    _updateUser(FirebaseAuth.instance.currentUser!);
+  }
 
+  void _updateUser(User user){
+    setState(() {
+      _user = user;
+    });
+  }
   
 
   @override
@@ -89,7 +101,7 @@ final DatabaseReference _reference = FirebaseDatabase.instance.ref().child('msgs
 
   void _sendmsg(){
     if(_icansendmsg()){
-      final msg = Data(_msgController.text, DateTime.now());
+      final msg = Data(_msgController.text, DateTime.now(),name);
       widget.newdata.saveMessage(msg);
       _msgController.clear();
       setState(() {
@@ -108,7 +120,8 @@ final DatabaseReference _reference = FirebaseDatabase.instance.ref().child('msgs
           final json =snapshot.value as  Map<dynamic, dynamic>;
           final data = Data.fromJson(json);
           //return DataWidget(data.text , data.dateTime);
-          return DataBubble(data.text! , data.dateTime, _reference.key == user.uid);
+          //return DataBubble(data.text! , data.dateTime, _reference.key == _user!.uid);
+          return DataBubble(data.text! , data.dateTime, data.name! == _user!.displayName);
         }
       ),
       );
