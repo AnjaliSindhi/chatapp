@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       ),
 
       routes: {
-        '/home' : (context) => DataList(),
+        '/datalist' : (context) => DataList(),
       },
       debugShowCheckedModeBanner: false, 
     ); 

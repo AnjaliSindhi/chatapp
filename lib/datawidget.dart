@@ -1,11 +1,13 @@
+import 'package:chatapp/user.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class DataWidget extends StatelessWidget {
   final String? text;
   final DateTime? dateTime;
+  final String? img;
 
-  DataWidget(this.text, this.dateTime, );
+  DataWidget(this.text, this.dateTime, this.img);
 
 
   @override

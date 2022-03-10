@@ -1,15 +1,21 @@
-import 'package:chatapp/dataBubble.dart';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart' ;
+import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:chatapp/datawidget.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:uuid/uuid.dart';
+
+import 'package:chatapp/datawidget.dart';
+import 'package:chatapp/dataBubble.dart';
 import '../user.dart';
 import '../data.dart';
 import '../newdata.dart';
+
 
 
 class DataList extends StatefulWidget {
@@ -21,7 +27,14 @@ class DataList extends StatefulWidget {
 }
 
 class _DataListState extends State<DataList> { 
- //User user =  FirebaseAuth.instance.currentUser!;
+ 
+FirebaseStorage storage = FirebaseStorage.instance; 
+ late File imgFile;
+
+File? _img;    
+String? _uploadedFileURL;   
+ 
+
  String? mailid =  FirebaseAuth.instance.currentUser!.email;
  User? _user;
 final DatabaseReference _reference = FirebaseDatabase.instance.ref().child('msgs');  
@@ -73,13 +86,21 @@ final DatabaseReference _reference = FirebaseDatabase.instance.ref().child('msgs
                       padding: const EdgeInsets.symmetric(horizontal: 12) ,
                       child: TextField(
                         keyboardType: TextInputType.text,
+                        
                         controller: _msgController,
                         onChanged: (text) => setState(() {}),
                         onSubmitted: (input) {
                           _sendmsg();
                         },
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: "Message...",
+                          suffixIcon: IconButton( 
+                            icon:  const Icon(Icons.photo),
+                            onPressed: () {
+                              print('it works');
+                              _getImage();
+                            },
+                            ),
                         ),
                       ),
                       )
@@ -99,9 +120,27 @@ final DatabaseReference _reference = FirebaseDatabase.instance.ref().child('msgs
     );
   }
 
+Future _getImage() async {
+ ImagePicker _img = ImagePicker();
+ await _img.pickImage(source: ImageSource.gallery).then((file){
+        if(file!= null){
+          imgFile = File(file.path) ; 
+          uploadImage();
+        }
+ });
+}
+
+Future uploadImage()async {
+    String fileName = Uuid().v1();
+    var ref = FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
+    var uploadTask = await ref.putFile(imgFile);
+    String imgUrl = await uploadTask.ref.getDownloadURL();
+    print(imgUrl);
+  }
+
   void _sendmsg(){
     if(_icansendmsg()){
-      final msg = Data(_msgController.text, DateTime.now(),name);
+      final msg = Data(_msgController.text, DateTime.now(), name);
       widget.newdata.saveMessage(msg);
       _msgController.clear();
       setState(() {
@@ -114,6 +153,8 @@ final DatabaseReference _reference = FirebaseDatabase.instance.ref().child('msgs
   Widget _getMessageList(){
     return Expanded(
       child: FirebaseAnimatedList(
+        //reverse: true,
+        
         controller: _scrollController,
         query: widget.newdata.getMessage(),
         itemBuilder: (context , snapshot , animation ,index){

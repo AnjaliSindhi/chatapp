@@ -23,7 +23,7 @@ class Google extends StatelessWidget {
         }).catchError((e){
           print(e);
         }).then((onValue){
-          Navigator.pushNamed(context, '/home');
+          Navigator.pushNamed(context, '/datalist');
         });
       },
       ),
