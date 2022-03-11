@@ -29,15 +29,13 @@ class DataList extends StatefulWidget {
 class _DataListState extends State<DataList> { 
  
 FirebaseStorage storage = FirebaseStorage.instance; 
- late File imgFile;
-
-File? _img;    
-String? _uploadedFileURL;   
+late File imgFile;
+late String imgUrl;  
  
 
  String? mailid =  FirebaseAuth.instance.currentUser!.email;
  User? _user;
-final DatabaseReference _reference = FirebaseDatabase.instance.ref().child('msgs');  
+//final DatabaseReference _reference = FirebaseDatabase.instance.ref().child('msgs');  
 
   ScrollController _scrollController = ScrollController();
   TextEditingController _msgController = TextEditingController();
@@ -134,13 +132,13 @@ Future uploadImage()async {
     String fileName = Uuid().v1();
     var ref = FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
     var uploadTask = await ref.putFile(imgFile);
-    String imgUrl = await uploadTask.ref.getDownloadURL();
+    imgUrl = await uploadTask.ref.getDownloadURL();
     print(imgUrl);
   }
 
   void _sendmsg(){
     if(_icansendmsg()){
-      final msg = Data(_msgController.text, DateTime.now(), name);
+      final msg = Data(_msgController.text, DateTime.now(), name, imgUrl);
       widget.newdata.saveMessage(msg);
       _msgController.clear();
       setState(() {
@@ -161,8 +159,8 @@ Future uploadImage()async {
           final json =snapshot.value as  Map<dynamic, dynamic>;
           final data = Data.fromJson(json);
           //return DataWidget(data.text , data.dateTime);
-          //return DataBubble(data.text! , data.dateTime, _reference.key == _user!.uid);
-          return DataBubble(data.text! , data.dateTime, data.name! == _user!.displayName);
+          //return DataBubble(data.text! , data.dateTime!, imgUrl!,  _reference.key == _user!.uid);
+          return DataBubble(data.text! , data.dateTime!,  data.name == _user!.displayName, imgUrl);
         }
       ),
       );

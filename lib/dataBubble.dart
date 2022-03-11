@@ -1,13 +1,21 @@
+// ignore_for_file: unrelated_type_equality_checks
+
+import 'dart:convert';
+
+import 'package:chatapp/user.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'data.dart';
 
 class DataBubble extends StatelessWidget {
 
   final String text;
   final DateTime? dateTime;
+  final String img;
   final bool isMe;
 
   //final Key key;
-  DataBubble(this.text, this.dateTime,  this.isMe,);
+  DataBubble(this.text, this.dateTime, this.isMe, this.img);
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +24,7 @@ class DataBubble extends StatelessWidget {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: isMe? Colors.grey[350]: Theme.of(context).colorScheme.secondary,
+            color: isMe? Colors.grey[400]: Theme.of(context).colorScheme.secondary,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(12),
               topRight: Radius.circular(12),
@@ -31,11 +39,29 @@ class DataBubble extends StatelessWidget {
             horizontal: 8,
           ),
           
-          child: Text(
-            text, 
-            style: TextStyle(color: isMe? Colors.black : Colors.white),),
+          child: Column(
+            children: [
+
+             if( text == text )
+              Text(
+                text+'\n\n'+img+'\n'+(DateFormat('kk:mma,dd-mm').format(dateTime!).toString()),
+                style: TextStyle(color: isMe? Colors.black : Colors.white , fontWeight: FontWeight.bold),
+                ),
+                
+              
+             if(text == img)
+              Container(
+                height: 30,
+                width: 30,
+                child: Image.network(img),
+              ),
+              
+              
+            ],
+          ),
         ),
       ],
     );
   }
 }
+
